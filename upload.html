@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ratemypoop.net — Upload</title>
+
+  <!-- Upload-page-specific styles -->
+  <link rel="stylesheet" href="css/style-upload.css" />
+</head>
+
+<body>
+  <!-- Top navigation -->
+  <header class="topbar">
+    <a class="logo" href="index.html">ratemypoop.net</a>
+
+    <nav class="nav">
+      <a href="index.html" class="nav-link">Feed</a>
+      <a href="upload.html" class="nav-link active">Upload</a>
+    </nav>
+  </header>
+
+  <!-- Main content -->
+  <main class="container">
+    <h1>Upload a Photo</h1>
+    <p class="muted">
+      This is a prototype. Images are stored on the server. Please don't upload anything illegal or identifying.
+    </p>
+
+    <!-- Upload form -->
+    <form class="card upload-form" action="upload.php" method="POST" enctype="multipart/form-data">
+      <!-- Title -->
+      <label class="field">
+        <span>Title (optional)</span>
+        <input
+          type="text"
+          name="title"
+          maxlength="80"
+          placeholder="e.g., The Phantom Plopper"
+        />
+      </label>
+
+      <!-- Image file -->
+      <label class="field">
+        <span>Image file</span>
+        <input
+          type="file"
+          name="poop_image"
+          accept="image/*"
+          required
+        />
+        <small class="muted">
+          Accepted formats: JPG, PNG, WEBP. Max size enforced server-side.
+        </small>
+      </label>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button type="submit" class="btn primary">
+          Upload
+        </button>
+
+        <a href="index.html" class="btn">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </main>
+
+  <!-- Upload page JS -->
+  <script src="scripts/upload.js"></script>
+</body>
+</html>
