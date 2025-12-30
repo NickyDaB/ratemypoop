@@ -22,7 +22,7 @@ try {
     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
   );
 
-  $stmt = $pdo->prepare("SELECT id, image_path, original_name, mime_type, created_at FROM uploads WHERE id = ?");
+  $stmt = $pdo->prepare("SELECT id, db_file_name, original_user_file_name, mime_type, created_at FROM uploads WHERE id = ?");
   $stmt->execute([$id]);
   $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -52,13 +52,13 @@ try {
     <p><strong>DB ID:</strong> <?php echo (int)$row['id']; ?></p>
 
     <div class="preview">
-      <p><strong>Original name:</strong> <?php echo htmlspecialchars($row['original_name']); ?></p>
+      <p><strong>Original name:</strong> <?php echo htmlspecialchars($row['original_user_file_name']); ?></p>
       <img
-        src="<?php echo htmlspecialchars($row['image_path']); ?>"
+        src="/media/uploads/<?php echo htmlspecialchars($row['db_file_name']); ?>"
         alt="Uploaded image preview"
-        style="max-width: 600px; width: 100%; height: auto; border-radius: 8px;"
       />
-      <p style="opacity: 0.8;">
+      <p>Quick Link: <a href="/media/uploads/<?php echo htmlspecialchars($row['db_file_name']); ?>"><?php echo htmlspecialchars($row['db_file_name']); ?></a></p>
+      <p>
         <strong>MIME:</strong> <?php echo htmlspecialchars($row['mime_type']); ?>
         <?php if (!empty($row['created_at'])): ?>
           • <strong>Created:</strong> <?php echo htmlspecialchars($row['created_at']); ?>
@@ -66,9 +66,8 @@ try {
       </p>
     </div>
 
-    <p style="margin-top: 24px;">
-      <a href="upload.html">Upload another</a> •
-      <a href="index.html">Back to home</a>
+    <p>
+      <a href="upload.html">Upload another</a> • <a href="index.html">Back to home</a>
     </p>
   </main>
 </body>
