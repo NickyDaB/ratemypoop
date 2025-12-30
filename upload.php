@@ -72,8 +72,8 @@ if (!in_array($mime, $allowedMime, true)) {
 
 // Generate a safe unique filename
 $random = bin2hex(random_bytes(16));
-$storedName = $random . '.' . $ext;
-$targetPath = $uploadDir . $storedName;
+$newName = $random . '.' . $ext;
+$targetPath = $uploadDir . $newName;
 
 // Move the upload
 if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
@@ -82,20 +82,29 @@ if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
   exit;
 }
 
+//prepping for the database
+$originalName = $_FILES['poop_image']['name'];
+$storedName   = $newName;               // the random filename we generated
+$mimeType     = $mime;                  // the validated mime we computed
+$fileSize     = (int) $_FILES['poop_image']['size'];
+
 //DB stuff
 $stmt = $pdo->prepare("
-  INSERT INTO uploads (original_name, stored_name, mime_type, file_size)
-  VALUES (:original_name, :stored_name, :mime_type, :file_size)
+  INSERT INTO uploads (db_file_name, original_user_file_name, mime_type, file_size)
+  VALUES (:db_file_name, :original_user_file_name, :mime_type, :file_size)
 ");
 
 $stmt->execute([
-  ":original_name" => $originalName,
-  ":stored_name"   => $storedName,
+  ":db_file_name"   => $storedName,
+  ":original_user_file_name" => $originalName,
   ":mime_type"     => $mime,
   ":file_size"     => $fileSize,
 ]);
 
 $newId = (int)$pdo->lastInsertId();
+
+//sanity check
+//echo "<p>DB row created! Upload ID: <strong>{$newId}</strong></p>";
 
 // Permissions (optional but nice)
 @chmod($targetPath, 0644);
@@ -105,48 +114,8 @@ $imageUrl = $uploadUrl . $storedName;
 
 // Redirect to homepage (or a view page later)
 //header("Location: index.html?uploaded=1&id=" . $newId);
-//exit;
+// Redirect to success page for minimal verification UX
+header("Location: success.php?id=" . $newId);
+exit;
 
 ?>
-
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Upload Complete • ratemypoop.net</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/style-upload.css" />
-</head>
-<body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="index.html">ratemypoop<span class="dot">.net</span></a>
-      <nav class="nav">
-        <a href="index.html">Home</a>
-        <a class="btn" href="upload.html">Upload</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container upload-page">
-    <h1>Upload complete ✅</h1>
-    <p>Your masterpiece has been securely stored in the vault.</p>
-
-    <div class="upload-result">
-      <img src="<?php echo h($imageUrl); ?>" alt="Uploaded image preview" />
-      <p class="small">
-        Direct link: <a href="<?php echo h($imageUrl); ?>"><?php echo h($imageUrl); ?></a>
-      </p>
-    </div>
-
-    <div class="actions">
-      <a class="btn" href="upload.html">Upload another</a>
-      <a class="btn secondary" href="index.html">Back to feed</a>
-    </div>
-  </main>
-
-  <script src="scripts/app.js"></script>
-  <script src="scripts/upload.js"></script>
-</body>
-</html>
