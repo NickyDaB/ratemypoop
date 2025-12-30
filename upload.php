@@ -4,6 +4,10 @@
 
 declare(strict_types=1);
 
+//important things to organize later
+
+require __DIR__ . "/scripts/db.php"; // path from root: ratemypoop/upload.php -> ratemypoop/scripts/db.php
+
 // --- Config ---
 $uploadDir = __DIR__ . '/media/uploads/';        // filesystem path
 $uploadUrl = 'media/uploads/';                   // URL path from site root
@@ -68,8 +72,8 @@ if (!in_array($mime, $allowedMime, true)) {
 
 // Generate a safe unique filename
 $random = bin2hex(random_bytes(16));
-$newName = $random . '.' . $ext;
-$targetPath = $uploadDir . $newName;
+$storedName = $random . '.' . $ext;
+$targetPath = $uploadDir . $storedName;
 
 // Move the upload
 if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
@@ -78,11 +82,31 @@ if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
   exit;
 }
 
+//DB stuff
+$stmt = $pdo->prepare("
+  INSERT INTO uploads (original_name, stored_name, mime_type, file_size)
+  VALUES (:original_name, :stored_name, :mime_type, :file_size)
+");
+
+$stmt->execute([
+  ":original_name" => $originalName,
+  ":stored_name"   => $storedName,
+  ":mime_type"     => $mime,
+  ":file_size"     => $fileSize,
+]);
+
+$newId = (int)$pdo->lastInsertId();
+
 // Permissions (optional but nice)
 @chmod($targetPath, 0644);
 
 // Success page (simple)
-$imageUrl = $uploadUrl . $newName;
+$imageUrl = $uploadUrl . $storedName;
+
+// Redirect to homepage (or a view page later)
+//header("Location: index.html?uploaded=1&id=" . $newId);
+//exit;
+
 ?>
 
 <!doctype html>
