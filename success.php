@@ -16,9 +16,9 @@ require __DIR__ . "/scripts/db.php"; // path from root: ratemypoop/upload.php ->
 
 try {
   $pdo = new PDO(
-    "mysql:host={$dbHost};dbname={$dbName};charset=utf8mb4",
-    $dbUser,
-    $dbPass,
+    "mysql:host={$DB_HOST};dbname={$DB_NAME};charset=utf8mb4",
+    $DB_USER,
+    $DB_PASS,
     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
   );
 
